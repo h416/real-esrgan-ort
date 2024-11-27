@@ -1,6 +1,11 @@
 use image::{imageops::FilterType, DynamicImage, GenericImageView};
 
-use ort::{inputs, CUDAExecutionProvider, Session, SessionOutputs, Tensor};
+use ort::execution_providers::CUDAExecutionProvider;
+use ort::inputs;
+use ort::session::builder::GraphOptimizationLevel;
+use ort::session::{Session, SessionOutputs};
+use ort::tensor::PrimitiveTensorElementType;
+use ort::value::Tensor;
 
 use half::f16;
 
@@ -92,7 +97,7 @@ fn vec_to_image<T: num_traits::float::Float>(
     });
     output_img
 }
-fn predict<T: ort::PrimitiveTensorElementType + std::fmt::Debug + std::clone::Clone + 'static>(
+fn predict<T: PrimitiveTensorElementType + std::fmt::Debug + std::clone::Clone + 'static>(
     model_path: &str,
     input_vec: &Vec<T>,
     img_width: usize,
@@ -101,7 +106,7 @@ fn predict<T: ort::PrimitiveTensorElementType + std::fmt::Debug + std::clone::Cl
     let num_cpus = num_cpus::get();
 
     let model = Session::builder()?
-        .with_optimization_level(ort::GraphOptimizationLevel::Level3)?
+        .with_optimization_level(GraphOptimizationLevel::Level3)?
         .with_intra_threads(num_cpus)?
         .commit_from_file(model_path)?;
 
@@ -122,7 +127,7 @@ fn predict<T: ort::PrimitiveTensorElementType + std::fmt::Debug + std::clone::Cl
 fn convert<
     T: num_traits::float::Float
         + num_traits::cast::FromPrimitive
-        + ort::PrimitiveTensorElementType
+        + PrimitiveTensorElementType
         + std::fmt::Debug
         + std::clone::Clone
         + 'static,

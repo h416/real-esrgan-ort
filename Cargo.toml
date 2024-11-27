@@ -8,4 +8,4 @@ half = { version = "2.4", features = ["num-traits"] }
 image = { version = "0.25", default-features = false, features = ["jpeg", "png"] }
 num-traits = "0.2.19"
 num_cpus = "1.16.0"
-ort = "2.0.0-rc.7"
+ort = "2.0.0-rc.9"
