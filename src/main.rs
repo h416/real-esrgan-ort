@@ -105,7 +105,7 @@ fn predict<T: PrimitiveTensorElementType + std::fmt::Debug + std::clone::Clone +
 ) -> ort::Result<Vec<T>> {
     let num_cpus = num_cpus::get();
 
-    let model = Session::builder()?
+    let mut model = Session::builder()?
         .with_optimization_level(GraphOptimizationLevel::Level3)?
         .with_intra_threads(num_cpus)?
         .commit_from_file(model_path)?;
@@ -116,11 +116,11 @@ fn predict<T: PrimitiveTensorElementType + std::fmt::Debug + std::clone::Clone +
         input_vec.clone().into_boxed_slice(),
     ))?;
 
-    let outputs: SessionOutputs = model.run(inputs![input_tensor]?)?;
+    let outputs: SessionOutputs = model.run(inputs![input_tensor])?;
 
     let output = &outputs[0];
-    let output_tensor = output.try_extract_tensor::<T>()?;
-    let output_vec: Vec<T> = output_tensor.map(|x| x.clone()).into_iter().collect();
+    let output_array = output.try_extract_array::<T>()?;
+    let output_vec: Vec<T> = output_array.map(|x| x.clone()).into_iter().collect();
     Ok(output_vec)
 }
 
